@@ -1,21 +1,21 @@
 {
-  "name": "frontend-nanodegree-arcade-game",
+  "name": "javascript-snakey",
   "version": "1.0.0",
-  "description": "frontend-nanodegree-arcade-game\r ===============================",
+  "description": "javascript-snakey\r ===============================",
   "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fpellicero/frontend-nanodegree-arcade-game.git"
+    "url": "git+https://github.com/fpellicero/javascript-snakey.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/fpellicero/frontend-nanodegree-arcade-game/issues"
+    "url": "https://github.com/fpellicero/javascript-snakey/issues"
   },
-  "homepage": "https://github.com/fpellicero/frontend-nanodegree-arcade-game#readme",
+  "homepage": "https://github.com/fpellicero/javascript-snakey#readme",
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-contrib-concat": "^1.0.1",

@@ -7,6 +7,27 @@ Element.prototype.render = function() {
     }
 
 };
+
+Element.prototype.CanGoLeft = function() {
+	var currentSquare = this.GetCurrentSquare();
+	return currentSquare.Col > 0;
+}
+
+Element.prototype.CanGoRight = function() {
+	var currentSquare = this.GetCurrentSquare();
+	return currentSquare.Col < Config.NumCols - 1;
+}
+
+Element.prototype.CanGoUp = function() {
+	var currentSquare = this.GetCurrentSquare();
+	return currentSquare.Row > 0;
+}
+
+Element.prototype.CanGoDown = function() {
+	var currentSquare = this.GetCurrentSquare();
+	return currentSquare.Row < Config.NumRows - 1;
+}
+
 Element.prototype.GetCurrentSquare = function() {
   var center = {
     x: this.x - this.width / 2,

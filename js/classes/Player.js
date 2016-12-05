@@ -23,26 +23,6 @@ Player.prototype.Spawn = function() {
 	this.y = cellPosition.y;
 }
 
-Player.prototype.CanGoLeft = function() {
-	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Col > 0;
-}
-
-Player.prototype.CanGoRight = function() {
-	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Col < Config.NumCols - 1;
-}
-
-Player.prototype.CanGoUp = function() {
-	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Row > 1;
-}
-
-Player.prototype.CanGoDown = function() {
-	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Row < Config.NumRows - 1;
-}
-
 Player.prototype.goLeft = function() {
 	if(!this.CanGoLeft()) return;
 	this.x -= Config.ColSize;

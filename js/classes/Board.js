@@ -4,19 +4,26 @@ function Board(width, height, nRows, nCols) {
 	this.nRows = nRows;
 	this.nCols = nCols;
 	this.Gems = [];
-	this.RowSprites = this.GenerateRows();
+	this.Sprites = this.GenerateBoard();
 }
 
-Board.prototype.GenerateRows = function() {
-	var sprites = [
-		'images/water-block.png',   // Top row is water
-		'images/stone-block.png',   // Row 1 of 3 of stone
-		'images/stone-block.png',   // Row 2 of 3 of stone
-		'images/stone-block.png',   // Row 3 of 3 of stone
+Board.prototype.GenerateBoard = function() {
+	var availableSprites = [
+		'images/stone-block.png',   // Top row is water
+		'images/grass-block.png',   // Row 1 of 3 of stone
 	];
 
-	for (var i = 4; i < this.nRows; i++) {
-		sprites.push('images/grass-block.png')
+	var getRandomSprite = function() {
+			var randomIndex = Math.floor(Math.random() * availableSprites.length);
+			return availableSprites[randomIndex];
+	}
+
+	var sprites = [];
+	for (var i = 0; i < this.nRows; i++) {
+		for (var j = 0; j < this.nCols; j++) {
+				if(j == 0) sprites[i] = [];
+				sprites[i].push(getRandomSprite());
+		}
 	}
 	return sprites;
 };
@@ -59,7 +66,7 @@ Board.prototype.render = function(withGems) {
 	var self = this;
 	for (var row = 0; row < this.nRows; row++) {
 		for (var col = 0; col < this.nCols; col++) {
-			ctx.drawImage(Resources.get(self.RowSprites[row]), self.GetColOffset(col), self.GetRowOffset(row));
+			ctx.drawImage(Resources.get(self.Sprites[row][col]), self.GetColOffset(col), self.GetRowOffset(row));
 		}
 	}
 	self.PrintGems();

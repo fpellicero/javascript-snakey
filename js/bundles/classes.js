@@ -4,19 +4,26 @@ function Board(width, height, nRows, nCols) {
 	this.nRows = nRows;
 	this.nCols = nCols;
 	this.Gems = [];
-	this.RowSprites = this.GenerateRows();
+	this.Sprites = this.GenerateBoard();
 }
 
-Board.prototype.GenerateRows = function() {
-	var sprites = [
-		'images/water-block.png',   // Top row is water
-		'images/stone-block.png',   // Row 1 of 3 of stone
-		'images/stone-block.png',   // Row 2 of 3 of stone
-		'images/stone-block.png',   // Row 3 of 3 of stone
+Board.prototype.GenerateBoard = function() {
+	var availableSprites = [
+		'images/stone-block.png',   // Top row is water
+		'images/grass-block.png',   // Row 1 of 3 of stone
 	];
 
-	for (var i = 4; i < this.nRows; i++) {
-		sprites.push('images/grass-block.png')
+	var getRandomSprite = function() {
+			var randomIndex = Math.floor(Math.random() * availableSprites.length);
+			return availableSprites[randomIndex];
+	}
+
+	var sprites = [];
+	for (var i = 0; i < this.nRows; i++) {
+		for (var j = 0; j < this.nCols; j++) {
+				if(j == 0) sprites[i] = [];
+				sprites[i].push(getRandomSprite());
+		}
 	}
 	return sprites;
 };
@@ -59,7 +66,7 @@ Board.prototype.render = function(withGems) {
 	var self = this;
 	for (var row = 0; row < this.nRows; row++) {
 		for (var col = 0; col < this.nCols; col++) {
-			ctx.drawImage(Resources.get(self.RowSprites[row]), self.GetColOffset(col), self.GetRowOffset(row));
+			ctx.drawImage(Resources.get(self.Sprites[row][col]), self.GetColOffset(col), self.GetRowOffset(row));
 		}
 	}
 	self.PrintGems();
@@ -98,35 +105,105 @@ var Config = {
     TextColor: "#D2312E",
     TextFont: "2em Verdana"
 }
+
+var DIRECTION = {
+	UP : 0,
+	DOWN : 1,
+	LEFT : 2,
+	RIGHT : 3
+}
+
 function Enemy() {
-    this.x = 0;
-    this.y = this.GetRandomRow();
+    var initialDirection = this.GetInitialDirection();
+    var initialPosition = this.GetInitialPosition(initialDirection);
+    this.Direction = initialDirection;
+    this.x = initialPosition.x;
+    this.y = initialPosition.y;
+
+    this.MinSpeed = 25;
     this.speed = this.GetRandomSpeed();
 
+    this.LastDirectionChangeTime = new Date().getTime();
 };
 Enemy.prototype.sprite = 'images/enemy-bug.png'
 Enemy.prototype.width = 80;
 Enemy.prototype.height = 80;
-Enemy.prototype.MinSpeed = 25
 
 Enemy.prototype = Object.create(Element.prototype);
 Enemy.prototype.constructor = Enemy;
 
+Enemy.prototype.GetInitialDirection = function () {
+  return Math.round(Math.random() * Object.keys(DIRECTION).length)
+};
+
+Enemy.prototype.GetInitialPosition = function (initialDirection) {
+  var position = {};
+  switch (initialDirection) {
+    case DIRECTION.UP:
+      position.y = board.height;
+      position.x = board.GetRandomColOffset();
+      break;
+    case DIRECTION.DOWN:
+      position.y = 0;
+      position.x = board.GetRandomColOffset();
+      break;
+    case DIRECTION.LEFT:
+      position.y = board.GetRandomRowOffset();
+      position.x = board.width;
+      break;
+    case DIRECTION.RIGHT:
+      position.y = board.GetRandomRowOffset();
+      position.x = 0
+      break;
+  }
+  return position;
+};
+
 Enemy.prototype.GetRandomSpeed = function() {
-    var randomSpeed = Math.floor(Math.random() * 100);
+    var randomSpeed = Math.floor(Math.random() * 55);
     return randomSpeed > this.MinSpeed ? randomSpeed : 25;
 }
 
-Enemy.prototype.GetRandomRow = function() {
-    var row = Math.round(Math.random() * 2) + 1;
-    return board.GetCenterRowOffset(row);
-}
-
 Enemy.prototype.update = function(dt) {
-    this.x += (this.speed*dt);
+    this.UpdatePosition(dt);
     this.CheckPlayerCollision();
 };
 
+Enemy.prototype.UpdatePosition = function (dt) {
+  this.TryChangeDirection(dt);
+
+  switch (this.Direction) {
+    case DIRECTION.UP:
+      this.y -= (this.speed*dt);
+      break;
+    case DIRECTION.DOWN:
+      this.y += (this.speed*dt);
+      break;
+    case DIRECTION.LEFT:
+      this.x -= (this.speed*dt);
+      break;
+    case DIRECTION.RIGHT:
+      this.x += (this.speed*dt);
+      break;
+  }
+};
+
+Enemy.prototype.TryChangeDirection = function (dt) {
+  var currentTime = new Date().getTime();
+  var timeSinceLastChange = currentTime - this.LastDirectionChangeTime;
+  if(timeSinceLastChange < 2500 ||  Math.random() < 0.97) return;
+
+
+  var nextDirection;
+  if(this.Direction == DIRECTION.UP || this.Direction == DIRECTION.DOWN) {
+    nextDirection = Math.random() > .5 ?  DIRECTION.RIGHT : DIRECTION.LEFT;
+  }else {
+    nextDirection = Math.random() > .5 ? DIRECTION.UP : DIRECTION.DOWN;
+  }
+
+  this.Direction = nextDirection;
+  this.LastDirectionChangeTime = currentTime;
+};
 Enemy.prototype.CheckPlayerCollision = function() {
     var playerBounds = player.GetCurrentSquare();
     if(this.IsColliding(playerBounds)) {
@@ -215,6 +292,27 @@ Element.prototype.render = function() {
     }
 
 };
+
+Element.prototype.CanGoLeft = function() {
+	var currentSquare = this.GetCurrentSquare();
+	return currentSquare.Col > 0;
+}
+
+Element.prototype.CanGoRight = function() {
+	var currentSquare = this.GetCurrentSquare();
+	return currentSquare.Col < Config.NumCols - 1;
+}
+
+Element.prototype.CanGoUp = function() {
+	var currentSquare = this.GetCurrentSquare();
+	return currentSquare.Row > 0;
+}
+
+Element.prototype.CanGoDown = function() {
+	var currentSquare = this.GetCurrentSquare();
+	return currentSquare.Row < Config.NumRows - 1;
+}
+
 Element.prototype.GetCurrentSquare = function() {
   var center = {
     x: this.x - this.width / 2,
@@ -262,26 +360,6 @@ Player.prototype.Spawn = function() {
 	var cellPosition = board.GetCellCenterPosition(x,y);
 	this.x = cellPosition.x;
 	this.y = cellPosition.y;
-}
-
-Player.prototype.CanGoLeft = function() {
-	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Col > 0;
-}
-
-Player.prototype.CanGoRight = function() {
-	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Col < Config.NumCols - 1;
-}
-
-Player.prototype.CanGoUp = function() {
-	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Row > 1;
-}
-
-Player.prototype.CanGoDown = function() {
-	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Row < Config.NumRows - 1;
 }
 
 Player.prototype.goLeft = function() {

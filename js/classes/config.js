@@ -12,3 +12,10 @@ var Config = {
     TextColor: "#D2312E",
     TextFont: "2em Verdana"
 }
+
+var DIRECTION = {
+	UP : 0,
+	DOWN : 1,
+	LEFT : 2,
+	RIGHT : 3
+}
