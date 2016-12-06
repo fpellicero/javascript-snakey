@@ -90,8 +90,7 @@ Enemy.prototype.TryChangeDirection = function (dt) {
   this.LastDirectionChangeTime = currentTime;
 };
 Enemy.prototype.CheckPlayerCollision = function() {
-    var playerBounds = player.GetCurrentSquare();
-    if(this.IsColliding(playerBounds)) {
+    if(this.IsColliding(player)) {
         player.Die();
     }
 }

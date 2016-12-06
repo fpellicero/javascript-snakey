@@ -8,7 +8,7 @@ PlayerSelectionScreen.prototype = Object.create(Screen.prototype);
 PlayerSelectionScreen.prototype.constructor = PlayerSelectionScreen;
 
 
-PlayerSelectionScreen.prototype.AvailableChars = 
+PlayerSelectionScreen.prototype.AvailableChars =
 [
 	'images/char-boy.png',
 	'images/char-cat-girl.png',
@@ -48,7 +48,7 @@ PlayerSelectionScreen.prototype.handleInput = function(key) {
 			this.SelectCharAndInitGame();
 			default:
 		break;
-	}	
+	}
 };
 
 PlayerSelectionScreen.prototype.SelectCharAndInitGame = function() {
@@ -65,7 +65,7 @@ PlayerSelectionScreen.prototype.render = function() {
 	var centerOffset = board.GetRowOffset(board.nRows / 2);
 	var leftOffset = board.GetColOffset(board.nCols / 2 - (this.AvailableChars.length / 2));
 
-	ctx.drawImage(Resources.get(this.SelectorImage), leftOffset + this.CurrentSelection * Config.ColSize, centerOffset);
+	ctx.drawImage(Resources.get(this.SelectorImage), leftOffset + this.CurrentSelection * Config.ColSize, centerOffset - 60);
 
 	for (var i = 0; i < this.AvailableChars.length; i++) {
 		var char = this.AvailableChars[i];

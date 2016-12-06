@@ -2,13 +2,15 @@ function Player(sprite){
 	if(typeof sprite !== "string") sprite = 'images/char-horn-girl.png';
     this.sprite = sprite;
 		this.width = 100;
-		this.height = 100;
+		this.height = 101;
     this.Score = 0;
     this.Health = Config.InitialHealth;
     this.TopLabel = {
     	Value: 0,
     	LastUpdate: null
     };
+		this.Bullets = [];
+		this.LastDirection = DIRECTION.UP;
 }
 
 Player.prototype = Object.create(Element.prototype);
@@ -17,7 +19,7 @@ Player.prototype.constructor = Player;
 
 Player.prototype.Spawn = function() {
 	var x = Math.floor(board.nCols / 2);
-	var y = board.nRows - 2;
+	var y = board.nRows - 1;
 	var cellPosition = board.GetCellCenterPosition(x,y);
 	this.x = cellPosition.x;
 	this.y = cellPosition.y;
@@ -43,18 +45,21 @@ Player.prototype.goUp = function() {
 	this.y -= Config.RowSize;
 }
 
-Player.prototype.handleInput = function(direction) {
-	switch(direction) {
-		case "left":
+Player.prototype.handleInput = function(key) {
+	if(key == "spacebar") return this.Shoot();
+
+	this.LastDirection = key;
+	switch(key) {
+		case DIRECTION.LEFT:
 			this.goLeft();
 			break;
-		case "right":
+		case DIRECTION.RIGHT:
 			this.goRight();
 			break;
-		case "up":
+		case DIRECTION.UP:
 			this.goUp();
 			break;
-		case "down":
+		case DIRECTION.DOWN:
 			this.goDown();
 			break;
 		default:
@@ -75,6 +80,10 @@ Player.prototype.Die = function() {
 
 };
 
+Player.prototype.Shoot = function () {
+	this.Bullets.push(new Bullet(this.LastDirection, this.GetCenter()))
+};
+
 Player.prototype.Collect = function(gem) {
 	this.Score += gem.Points;
 	this.TopLabel.Value += gem.Points;
@@ -82,8 +91,24 @@ Player.prototype.Collect = function(gem) {
 };
 
 Player.prototype.render = function() {
-	ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+	this.Bullets.forEach(function(bullet) {
+		bullet.render();
+	});
+	Object.getPrototypeOf(Player.prototype).render.call(this);
 	this.PrintLabel();
+};
+
+Player.prototype.update = function (dt) {
+
+	for (var i = 0; i < this.Bullets.length; i++) {
+		var bullet = this.Bullets[i]
+		if(!bullet.IsInsideScene()) this.Bullets.splice(i, 1);
+
+		bullet.update(dt);
+		if(bullet.CheckCollisions(allEnemies)) {
+				this.Bullets.splice(i, 1);
+		}
+	}
 };
 
 Player.prototype.PrintLabel = function() {
@@ -95,10 +120,11 @@ Player.prototype.PrintLabel = function() {
 		return;
 	}
 
-	ctx.save();
-	ctx.fillStyle = Config.TextColor;
+	var center = this.GetCenter();
+		ctx.save();
+		ctx.fillStyle = Config.TextColor;
     ctx.font = Config.TextFont;
-    ctx.strokeText("+" + this.TopLabel.Value, this.x + 15, this.y + 45);
+    ctx.strokeText("+" + this.TopLabel.Value, center.x - 10, center.y - (this.height / 2));
     ctx.restore();
 };
 

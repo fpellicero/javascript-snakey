@@ -77,7 +77,7 @@ Board.prototype.PrintGems = function() {
 		var gem = this.Gems[i];
 
 		var collected = false;
-		if(gem.IsColliding(player.GetCurrentSquare())) {
+		if(gem.IsColliding(player)) {
 			player.Collect(gem);
 			collected = true;
 		}

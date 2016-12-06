@@ -14,10 +14,11 @@ MainScreen.prototype.Events = [
 		event: "keydown",
 		handler: function(e) {
 			var allowedKeys = {
-				37: 'left',
-				38: 'up',
-				39: 'right',
-				40: 'down'
+				32: "spacebar",
+				37: DIRECTION.LEFT,
+				38: DIRECTION.UP,
+				39: DIRECTION.RIGHT,
+				40: DIRECTION.DOWN
 			};
 
 			player.handleInput(allowedKeys[e.keyCode]);
@@ -54,11 +55,12 @@ MainScreen.prototype.Destroy = function() {
 
 MainScreen.prototype.update = function(dt) {
 	allEnemies.forEach(function(enemy) {
-        enemy.update(dt);
-    });
-    board.Gems.forEach(function(gem) {
-        gem.update(dt);
-    });
+      enemy.update(dt);
+  });
+  board.Gems.forEach(function(gem) {
+      gem.update(dt);
+  });
+	player.update(dt);
 };
 
 MainScreen.prototype.render = function(first_argument) {

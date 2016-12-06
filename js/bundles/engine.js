@@ -38,10 +38,11 @@ MainScreen.prototype.Events = [
 		event: "keydown",
 		handler: function(e) {
 			var allowedKeys = {
-				37: 'left',
-				38: 'up',
-				39: 'right',
-				40: 'down'
+				32: "spacebar",
+				37: DIRECTION.LEFT,
+				38: DIRECTION.UP,
+				39: DIRECTION.RIGHT,
+				40: DIRECTION.DOWN
 			};
 
 			player.handleInput(allowedKeys[e.keyCode]);
@@ -78,11 +79,12 @@ MainScreen.prototype.Destroy = function() {
 
 MainScreen.prototype.update = function(dt) {
 	allEnemies.forEach(function(enemy) {
-        enemy.update(dt);
-    });
-    board.Gems.forEach(function(gem) {
-        gem.update(dt);
-    });
+      enemy.update(dt);
+  });
+  board.Gems.forEach(function(gem) {
+      gem.update(dt);
+  });
+	player.update(dt);
 };
 
 MainScreen.prototype.render = function(first_argument) {
@@ -108,7 +110,7 @@ PlayerSelectionScreen.prototype = Object.create(Screen.prototype);
 PlayerSelectionScreen.prototype.constructor = PlayerSelectionScreen;
 
 
-PlayerSelectionScreen.prototype.AvailableChars = 
+PlayerSelectionScreen.prototype.AvailableChars =
 [
 	'images/char-boy.png',
 	'images/char-cat-girl.png',
@@ -148,7 +150,7 @@ PlayerSelectionScreen.prototype.handleInput = function(key) {
 			this.SelectCharAndInitGame();
 			default:
 		break;
-	}	
+	}
 };
 
 PlayerSelectionScreen.prototype.SelectCharAndInitGame = function() {
@@ -165,7 +167,7 @@ PlayerSelectionScreen.prototype.render = function() {
 	var centerOffset = board.GetRowOffset(board.nRows / 2);
 	var leftOffset = board.GetColOffset(board.nCols / 2 - (this.AvailableChars.length / 2));
 
-	ctx.drawImage(Resources.get(this.SelectorImage), leftOffset + this.CurrentSelection * Config.ColSize, centerOffset);
+	ctx.drawImage(Resources.get(this.SelectorImage), leftOffset + this.CurrentSelection * Config.ColSize, centerOffset - 60);
 
 	for (var i = 0; i < this.AvailableChars.length; i++) {
 		var char = this.AvailableChars[i];
@@ -181,6 +183,7 @@ PlayerSelectionScreen.prototype.PrintText = function() {
 	ctx.fillText("Choose a character", board.width / 2, board.height / 2 - Config.RowSize);
 	ctx.restore();
 };
+
 function Screen() {
 
 }
