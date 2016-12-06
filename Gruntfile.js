@@ -5,7 +5,14 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     concat: {
       classes: {
-        src: ['js/classes/*.js'],
+        src:
+        [
+          'js/classes/*.js',
+          'js/classes/Enemies/Enemy.js',
+          'js/classes/Enemies/AnimatedEnemy.js',
+          'js/classes/Enemies/RedHorn.js',
+          'js/classes/Enemies/YellowFlam.js'
+        ],
         dest: 'js/bundles/classes.js',
       },
       engine: {
@@ -26,7 +33,7 @@ module.exports = function(grunt) {
     },
     watch: {
       scripts: {
-        files: ['js/*/*.js', 'js/*.js'],
+        files: ['js/*/*.js', 'js/*.js', 'js/*/*/*.js'],
         tasks: ['concat', 'uglify'],
         options: {
           spawn: false,

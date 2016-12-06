@@ -53,7 +53,8 @@ MainScreen.prototype.Activate = function() {
 	this.BindEvents();
 
     this.EnemySpawner = setInterval(function() {
-        allEnemies.push(new RedHorn());
+				var newEnemy = Math.random() > .5 ? new RedHorn() : new YellowFlam();
+				allEnemies.push(newEnemy);
     }, 1500)
 
     this.GemSpawner = setInterval(function() {
@@ -300,25 +301,27 @@ var Engine = (function(global) {
      * draw our game level. Then set init as the callback method, so that when
      * all of these images are properly loaded our game will start.
      */
-     Resources.load([
-        'images/stone-block.png',
-        'images/water-block.png',
-        'images/grass-block.png',
-        'images/enemy-bug.png',
-        'images/char-boy.png',
-        'images/Gem Blue.png',
-        'images/Gem Green.png',
-        'images/Gem Orange.png',
-        'images/Heart.png',
-        'images/char-boy.png',
-        'images/char-cat-girl.png',
-        'images/char-horn-girl.png',
-        'images/char-pink-girl.png',
-        'images/char-princess-girl.png',
-        'images/Selector.png',
-        'images/mob/red-horn/frame-1.png',
-        'images/mob/red-horn/frame-2.png'
-        ]);
+     var resourcesToLoad = [
+       'images/stone-block.png',
+       'images/water-block.png',
+       'images/grass-block.png',
+       'images/enemy-bug.png',
+       'images/char-boy.png',
+       'images/Gem Blue.png',
+       'images/Gem Green.png',
+       'images/Gem Orange.png',
+       'images/Heart.png',
+       'images/char-boy.png',
+       'images/char-cat-girl.png',
+       'images/char-horn-girl.png',
+       'images/char-pink-girl.png',
+       'images/char-princess-girl.png',
+       'images/Selector.png',
+     ];
+     resourcesToLoad.push.apply(resourcesToLoad, RedHorn.prototype.Sprites);
+     resourcesToLoad.push.apply(resourcesToLoad, YellowFlam.prototype.Sprites);
+
+     Resources.load(resourcesToLoad);
      Resources.onReady(init);
 
     /* Assign the canvas' context object to the global variable (the window

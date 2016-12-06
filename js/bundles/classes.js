@@ -113,106 +113,6 @@ var DIRECTION = {
 	RIGHT : 3
 }
 
-function Enemy() {
-    var initialDirection = this.GetInitialDirection();
-    var initialPosition = this.GetInitialPosition(initialDirection);
-    this.Direction = initialDirection;
-    this.x = initialPosition.x;
-    this.y = initialPosition.y;
-
-    this.MinSpeed = 25;
-    this.speed = this.GetRandomSpeed();
-
-    this.LastDirectionChangeTime = new Date().getTime();
-};
-Enemy.prototype.sprite = 'images/enemy-bug.png'
-Enemy.prototype.width = 80;
-Enemy.prototype.height = 80;
-
-Enemy.prototype = Object.create(Element.prototype);
-Enemy.prototype.constructor = Enemy;
-
-Enemy.prototype.GetInitialDirection = function () {
-  return Math.round(Math.random() * Object.keys(DIRECTION).length)
-};
-
-Enemy.prototype.GetInitialPosition = function (initialDirection) {
-  var position = {};
-  switch (initialDirection) {
-    case DIRECTION.UP:
-      position.y = board.height;
-      position.x = board.GetRandomColOffset();
-      break;
-    case DIRECTION.DOWN:
-      position.y = 0;
-      position.x = board.GetRandomColOffset();
-      break;
-    case DIRECTION.LEFT:
-      position.y = board.GetRandomRowOffset();
-      position.x = board.width;
-      break;
-    case DIRECTION.RIGHT:
-      position.y = board.GetRandomRowOffset();
-      position.x = 0
-      break;
-  }
-  return position;
-};
-
-Enemy.prototype.GetRandomSpeed = function() {
-    var randomSpeed = Math.floor(Math.random() * 55);
-    return randomSpeed > this.MinSpeed ? randomSpeed : 25;
-}
-
-Enemy.prototype.update = function(dt) {
-    this.UpdatePosition(dt);
-    this.CheckPlayerCollision();
-};
-
-Enemy.prototype.UpdatePosition = function (dt) {
-  this.TryChangeDirection(dt);
-
-  switch (this.Direction) {
-    case DIRECTION.UP:
-      this.y -= (this.speed*dt);
-      break;
-    case DIRECTION.DOWN:
-      this.y += (this.speed*dt);
-      break;
-    case DIRECTION.LEFT:
-      this.x -= (this.speed*dt);
-      break;
-    case DIRECTION.RIGHT:
-      this.x += (this.speed*dt);
-      break;
-  }
-};
-
-Enemy.prototype.TryChangeDirection = function (dt) {
-  var currentTime = new Date().getTime();
-  var timeSinceLastChange = currentTime - this.LastDirectionChangeTime;
-  if(timeSinceLastChange < 2500 ||  Math.random() < 0.97) return;
-
-
-  var nextDirection;
-  if(this.Direction == DIRECTION.UP || this.Direction == DIRECTION.DOWN) {
-    nextDirection = Math.random() > .5 ?  DIRECTION.RIGHT : DIRECTION.LEFT;
-  }else {
-    nextDirection = Math.random() > .5 ? DIRECTION.UP : DIRECTION.DOWN;
-  }
-
-  this.Direction = nextDirection;
-  this.LastDirectionChangeTime = currentTime;
-};
-Enemy.prototype.CheckPlayerCollision = function() {
-    var playerBounds = player.GetCurrentSquare();
-    if(this.IsColliding(playerBounds)) {
-        player.Die();
-    }
-}
-
-var allEnemies = [];
-
 function Gem() {
 	this.SpawnTime = new Date().getTime();
 	this.Duration = this.GetDuration();
@@ -443,37 +343,6 @@ Player.prototype.PrintLabel = function() {
 
 var player = new Player();
 
-function RedHorn() {
-    Enemy.call(this);
-    this.sprite = this.Sprites[0];
-    this.currentSpriteIndex = 0;
-    this.lastFrameTime = new Date().getTime();
-};
-
-RedHorn.prototype = Object.create(Enemy.prototype);
-RedHorn.prototype.constructor = RedHorn;
-
-RedHorn.prototype.width = 65;
-RedHorn.prototype.height = 70;
-RedHorn.prototype.frameDuration = 300;
-
-RedHorn.prototype.Sprites = [
-    'images/mob/red-horn/frame-1.png',
-    'images/mob/red-horn/frame-2.png'
-];
-
-RedHorn.prototype.update = function (dt) {
-    Object.getPrototypeOf(RedHorn.prototype).update.call(this, dt)
-    var now = new Date().getTime();
-
-    if(now - this.lastFrameTime > this.frameDuration) {
-      this.lastFrameTime = now;
-
-      this.currentSpriteIndex = (this.currentSpriteIndex + 1) % this.Sprites.length;
-      this.sprite = this.Sprites[this.currentSpriteIndex];
-    }
-};
-
 /* Resources.js
  * This is simply an image loading utility. It eases the process of loading
  * image files so that they can be used within your game. It also includes
@@ -585,3 +454,170 @@ RedHorn.prototype.update = function (dt) {
         isReady: isReady
     };
 })();
+
+function Enemy() {
+    var initialDirection = this.GetInitialDirection();
+    var initialPosition = this.GetInitialPosition(initialDirection);
+    this.Direction = initialDirection;
+    this.x = initialPosition.x;
+    this.y = initialPosition.y;
+
+    this.MinSpeed = 25;
+    this.speed = this.GetRandomSpeed();
+
+    this.LastDirectionChangeTime = new Date().getTime();
+};
+Enemy.prototype.sprite = 'images/enemy-bug.png'
+Enemy.prototype.width = 80;
+Enemy.prototype.height = 80;
+
+Enemy.prototype = Object.create(Element.prototype);
+Enemy.prototype.constructor = Enemy;
+
+Enemy.prototype.GetInitialDirection = function () {
+  return Math.round(Math.random() * Object.keys(DIRECTION).length)
+};
+
+Enemy.prototype.GetInitialPosition = function (initialDirection) {
+  var position = {};
+  switch (initialDirection) {
+    case DIRECTION.UP:
+      position.y = board.height;
+      position.x = board.GetRandomColOffset();
+      break;
+    case DIRECTION.DOWN:
+      position.y = 0;
+      position.x = board.GetRandomColOffset();
+      break;
+    case DIRECTION.LEFT:
+      position.y = board.GetRandomRowOffset();
+      position.x = board.width;
+      break;
+    case DIRECTION.RIGHT:
+      position.y = board.GetRandomRowOffset();
+      position.x = 0
+      break;
+  }
+  return position;
+};
+
+Enemy.prototype.GetRandomSpeed = function() {
+    var randomSpeed = Math.floor(Math.random() * 55);
+    return randomSpeed > this.MinSpeed ? randomSpeed : 25;
+}
+
+Enemy.prototype.update = function(dt) {
+    this.UpdatePosition(dt);
+    this.CheckPlayerCollision();
+};
+
+Enemy.prototype.UpdatePosition = function (dt) {
+  this.TryChangeDirection(dt);
+
+  switch (this.Direction) {
+    case DIRECTION.UP:
+      this.y -= (this.speed*dt);
+      break;
+    case DIRECTION.DOWN:
+      this.y += (this.speed*dt);
+      break;
+    case DIRECTION.LEFT:
+      this.x -= (this.speed*dt);
+      break;
+    case DIRECTION.RIGHT:
+      this.x += (this.speed*dt);
+      break;
+  }
+};
+
+Enemy.prototype.TryChangeDirection = function (dt) {
+  var currentTime = new Date().getTime();
+  var timeSinceLastChange = currentTime - this.LastDirectionChangeTime;
+  if(timeSinceLastChange < 2500 ||  Math.random() < 0.97) return;
+
+
+  var nextDirection;
+  if(this.Direction == DIRECTION.UP || this.Direction == DIRECTION.DOWN) {
+    nextDirection = Math.random() > .5 ?  DIRECTION.RIGHT : DIRECTION.LEFT;
+  }else {
+    nextDirection = Math.random() > .5 ? DIRECTION.UP : DIRECTION.DOWN;
+  }
+
+  this.Direction = nextDirection;
+  this.LastDirectionChangeTime = currentTime;
+};
+Enemy.prototype.CheckPlayerCollision = function() {
+    var playerBounds = player.GetCurrentSquare();
+    if(this.IsColliding(playerBounds)) {
+        player.Die();
+    }
+}
+
+var allEnemies = [];
+
+function AnimatedEnemy() {
+  Enemy.call(this);
+  this.sprite = this.Sprites[0];
+  this.currentSpriteIndex = 0;
+  this.lastFrameTime = new Date().getTime();
+}
+
+AnimatedEnemy.prototype = Object.create(Enemy.prototype);
+AnimatedEnemy.prototype.constructor = AnimatedEnemy;
+
+AnimatedEnemy.prototype.IsAnimated = function () {
+  return this.Sprites && this.Sprites.length > 1;
+};
+
+AnimatedEnemy.prototype.update = function (dt) {
+    Object.getPrototypeOf(AnimatedEnemy.prototype).update.call(this, dt)
+
+    if(!this.IsAnimated()) return;
+
+    var now = new Date().getTime();
+
+    if(now - this.lastFrameTime > this.frameDuration) {
+      this.lastFrameTime = now;
+
+      this.currentSpriteIndex = (this.currentSpriteIndex + 1) % this.Sprites.length;
+      this.sprite = this.Sprites[this.currentSpriteIndex];
+    }
+};
+
+function RedHorn() {
+    AnimatedEnemy.call(this);
+};
+
+RedHorn.prototype = Object.create(AnimatedEnemy.prototype);
+RedHorn.prototype.constructor = RedHorn;
+
+RedHorn.prototype.width = 65;
+RedHorn.prototype.height = 70;
+RedHorn.prototype.frameDuration = 300;
+
+RedHorn.prototype.Sprites = [
+    'images/mob/red-horn/frame-1.png',
+    'images/mob/red-horn/frame-2.png'
+];
+
+function YellowFlam() {
+    AnimatedEnemy.call(this);
+};
+
+YellowFlam.prototype = Object.create(AnimatedEnemy.prototype);
+YellowFlam.prototype.constructor = YellowFlam;
+
+YellowFlam.prototype.width = 80;
+YellowFlam.prototype.height = 70;
+YellowFlam.prototype.frameDuration = 120;
+
+YellowFlam.prototype.Sprites = [
+    'images/mob/yellow-flam/1.png',
+    'images/mob/yellow-flam/2.png',
+    'images/mob/yellow-flam/3.png',
+    'images/mob/yellow-flam/4.png',
+    'images/mob/yellow-flam/5.png',
+    'images/mob/yellow-flam/6.png',
+    'images/mob/yellow-flam/7.png',
+    'images/mob/yellow-flam/8.png',
+];

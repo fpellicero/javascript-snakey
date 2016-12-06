@@ -29,7 +29,8 @@ MainScreen.prototype.Activate = function() {
 	this.BindEvents();
 
     this.EnemySpawner = setInterval(function() {
-        allEnemies.push(new RedHorn());
+				var newEnemy = Math.random() > .5 ? new RedHorn() : new YellowFlam();
+				allEnemies.push(newEnemy);
     }, 1500)
 
     this.GemSpawner = setInterval(function() {
