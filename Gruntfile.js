@@ -14,10 +14,20 @@ module.exports = function(grunt) {
       }
 
     },
+    uglify: {
+      engine: {
+        options: {
+          sourceMap: true,
+        },
+        files: {
+          'js/bundles/script.min.js' : ['js/bundles/classes.js', 'js/bundles/engine.js']
+        }
+      }
+    },
     watch: {
       scripts: {
         files: ['js/*/*.js', 'js/*.js'],
-        tasks: ['concat'],
+        tasks: ['concat', 'uglify'],
         options: {
           spawn: false,
         },
@@ -27,6 +37,7 @@ module.exports = function(grunt) {
 
   // Load the plugin that provides the "uglify" task.
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks("grunt-contrib-uglify")
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   // Default task(s).
