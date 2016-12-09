@@ -31,7 +31,7 @@ Board.prototype.GenerateBoard = function() {
 Board.prototype.GetCellCenterPosition = function(x, y) {
 	return {
 		x:  x * Config.ColSize,
-		y:  y * Config.RowSize + (Config.RowSize / 2)
+		y:  (y - 1) * Config.RowSize
 	};
 };
 
@@ -78,7 +78,7 @@ Board.prototype.PrintGems = function() {
 
 		var collected = false;
 		if(gem.IsColliding(player)) {
-			player.Collect(gem);
+			player.AddScore(gem.Points);
 			collected = true;
 		}
 

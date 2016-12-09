@@ -29,14 +29,11 @@ Bullet.prototype.update = function (dt) {
   }
 };
 
-Bullet.prototype.CheckCollisions = function (itemsToCheck) {
-  var self = this;
-  for (var i = 0; i < itemsToCheck.length; i++) {
-    if(itemsToCheck[i].dying) continue;
-    if(itemsToCheck[i].IsColliding(self)) {
-      itemsToCheck[i].Kill();
-      return true;
-    }
+Bullet.prototype.CheckCollisions = function (enemies) {
+  for (var i = 0; i < enemies.length; i++) {
+    var enemy = enemies[i];
+    if(enemy.dying || !enemy.IsColliding(this)) continue;
+    return enemy;
   }
   return false;
 };

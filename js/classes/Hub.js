@@ -1,5 +1,5 @@
 var Hub = {
-	 TopOffset: 80,
+	 TopOffset: 45,
 	 PrintScore: function(score) {
 		ctx.save();
 		ctx.fillStyle = Config.TextColor;
@@ -10,11 +10,11 @@ var Hub = {
 	},
 	PrintHealth: function(healthLevel) {
 		var healthSprite = Resources.get('images/Heart.png');
-		
+
 		var spriteWidth = 50;
 		var x = 5;
 		for (var i = 0; i < healthLevel; i++) {
-			ctx.drawImage(healthSprite, x, 40, 50, 85);
+			ctx.drawImage(healthSprite, x, 0, 50, 85);
 			x += spriteWidth;
 		}
 	}

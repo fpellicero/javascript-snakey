@@ -11,6 +11,7 @@ function Enemy() {
     this.LastDirectionChangeTime = new Date().getTime();
     this.dying = false;
     this.dieTime = null;
+    this.Score = 25;
 };
 Enemy.prototype.sprite = 'images/enemy-bug.png'
 Enemy.prototype.width = 80;
@@ -31,7 +32,7 @@ Enemy.prototype.GetInitialPosition = function (initialDirection) {
       position.x = board.GetRandomColOffset();
       break;
     case DIRECTION.DOWN:
-      position.y = 0;
+      position.y = 50;
       position.x = board.GetRandomColOffset();
       break;
     case DIRECTION.LEFT:
@@ -85,7 +86,12 @@ Enemy.prototype.TryChangeDirection = function (dt) {
   if(this.Direction == DIRECTION.UP || this.Direction == DIRECTION.DOWN) {
     nextDirection = Math.random() > .5 ?  DIRECTION.RIGHT : DIRECTION.LEFT;
   }else {
-    nextDirection = Math.random() > .5 ? DIRECTION.UP : DIRECTION.DOWN;
+    if(!this.CanGoUp()) {
+      nextDirection = DIRECTION.DOWN;
+    }
+    else {
+      nextDirection = Math.random() > .5 ? DIRECTION.UP : DIRECTION.DOWN;
+    }
   }
 
   this.Direction = nextDirection;

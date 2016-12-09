@@ -8,10 +8,13 @@ var Config = {
 	InitialHealth: 3,
 	DieScorePenalty: 100,
 	DieHealthPenalty: 1,
-	LabelDuration: 3000,
+	LabelDuration: 1000,
 	TextColor: "#D2312E",
 	TextFont: "2em Verdana",
-	EnemyDyingTime: 500
+	EnemyDyingTime: 500,
+	PrintBoundingBoxes: false,
+	EnemySpawnerTime: 1500,
+	GemSpawnerTime: 3000
 }
 
 var DIRECTION = {

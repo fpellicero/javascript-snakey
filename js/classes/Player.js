@@ -1,8 +1,8 @@
 function Player(sprite){
 	if(typeof sprite !== "string") sprite = 'images/char-horn-girl.png';
     this.sprite = sprite;
-		this.width = 100;
-		this.height = 101;
+		this.width = 80;
+		this.height = 81;
     this.Score = 0;
     this.Health = Config.InitialHealth;
     this.TopLabel = {
@@ -19,7 +19,7 @@ Player.prototype.constructor = Player;
 
 Player.prototype.Spawn = function() {
 	var x = Math.floor(board.nCols / 2);
-	var y = board.nRows - 1;
+	var y = board.nRows;
 	var cellPosition = board.GetCellCenterPosition(x,y);
 	this.x = cellPosition.x;
 	this.y = cellPosition.y;
@@ -84,9 +84,9 @@ Player.prototype.Shoot = function () {
 	this.Bullets.push(new Bullet(this.LastDirection, this.GetCenter()))
 };
 
-Player.prototype.Collect = function(gem) {
-	this.Score += gem.Points;
-	this.TopLabel.Value += gem.Points;
+Player.prototype.AddScore = function(score) {
+	this.Score += score;
+	this.TopLabel.Value += score;
 	this.TopLabel.LastUpdate = new Date().getTime();
 };
 
@@ -105,10 +105,17 @@ Player.prototype.update = function (dt) {
 		if(!bullet.IsInsideScene()) this.Bullets.splice(i, 1);
 
 		bullet.update(dt);
-		if(bullet.CheckCollisions(allEnemies)) {
+		var enemyKilled = bullet.CheckCollisions(allEnemies);
+		if(enemyKilled) {
+				this._killEnemy(enemyKilled);
 				this.Bullets.splice(i, 1);
 		}
 	}
+};
+
+Player.prototype._killEnemy = function (enemy) {
+	enemy.Kill();
+	this.AddScore(enemy.Score);
 };
 
 Player.prototype.PrintLabel = function() {

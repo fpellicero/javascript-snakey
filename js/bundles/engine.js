@@ -56,17 +56,16 @@ MainScreen.prototype.Activate = function() {
     this.EnemySpawner = setInterval(function() {
 				var newEnemy = Math.random() > .5 ? new RedHorn() : new YellowFlam();
 				allEnemies.push(newEnemy);
-    }, 1500)
+    }, Config.EnemySpawnerTime)
 
     this.GemSpawner = setInterval(function() {
         var random = Math.random() * 100;
         if(random > 85) {
             board.Gems.push(new Gem());
         }
-    }, 1000);
+    }, Config.GemSpawnerTime);
 
     player.Spawn();
-
 }
 
 MainScreen.prototype.Destroy = function() {
@@ -261,7 +260,7 @@ var Engine = (function(global) {
         var availableHeight = window.innerHeight - Config.Margin
 
         Config.NumCols = Math.floor(availableWidth / Config.ColSize);
-        Config.NumRows = Math.floor(availableHeight / Config.RowSize) - 1;
+        Config.NumRows = Math.floor(availableHeight / Config.RowSize);
 
         availableWidth = Config.NumCols * Config.ColSize;
         availableHeight = (Config.NumRows) * Config.RowSize + 90;

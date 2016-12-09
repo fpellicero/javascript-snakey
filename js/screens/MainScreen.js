@@ -32,17 +32,16 @@ MainScreen.prototype.Activate = function() {
     this.EnemySpawner = setInterval(function() {
 				var newEnemy = Math.random() > .5 ? new RedHorn() : new YellowFlam();
 				allEnemies.push(newEnemy);
-    }, 1500)
+    }, Config.EnemySpawnerTime)
 
     this.GemSpawner = setInterval(function() {
         var random = Math.random() * 100;
         if(random > 85) {
             board.Gems.push(new Gem());
         }
-    }, 1000);
+    }, Config.GemSpawnerTime);
 
     player.Spawn();
-
 }
 
 MainScreen.prototype.Destroy = function() {

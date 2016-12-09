@@ -1,6 +1,7 @@
 function Element() {}
 Element.prototype.render = function() {
     if(this.width && this.height) {
+        if(Config.PrintBoundingBoxes) ctx.strokeRect(this.x, this.y, this.width, this.height);
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y, this.width, this.height);
     }else {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -39,12 +40,12 @@ Element.prototype.CanGoRight = function() {
 
 Element.prototype.CanGoUp = function() {
 	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Row > 1;
+	return currentSquare.Row > 0;
 }
 
 Element.prototype.CanGoDown = function() {
 	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Row < Config.NumRows;
+	return currentSquare.Row < Config.NumRows - 1;
 }
 
 Element.prototype.GetCenter = function () {
@@ -74,6 +75,7 @@ Element.prototype.GetCurrentSquare = function() {
 Element.prototype.PrintWithRotation = function(sprite, x, y, width, height, rotation) {
 	ctx.save();
 	ctx.translate(x, y);
+  ctx.translate(Config.ColSize / 2, Config.RowSize / 2);
 	ctx.rotate( rotation );
 	ctx.translate(-width/2, -height/2);
 	ctx.drawImage(sprite, 0, 0, width, height);

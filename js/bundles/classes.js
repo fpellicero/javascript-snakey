@@ -31,7 +31,7 @@ Board.prototype.GenerateBoard = function() {
 Board.prototype.GetCellCenterPosition = function(x, y) {
 	return {
 		x:  x * Config.ColSize,
-		y:  y * Config.RowSize + (Config.RowSize / 2)
+		y:  (y - 1) * Config.RowSize
 	};
 };
 
@@ -78,7 +78,7 @@ Board.prototype.PrintGems = function() {
 
 		var collected = false;
 		if(gem.IsColliding(player)) {
-			player.Collect(gem);
+			player.AddScore(gem.Points);
 			collected = true;
 		}
 
@@ -122,14 +122,11 @@ Bullet.prototype.update = function (dt) {
   }
 };
 
-Bullet.prototype.CheckCollisions = function (itemsToCheck) {
-  var self = this;
-  for (var i = 0; i < itemsToCheck.length; i++) {
-    if(itemsToCheck[i].dying) continue;
-    if(itemsToCheck[i].IsColliding(self)) {
-      itemsToCheck[i].Kill();
-      return true;
-    }
+Bullet.prototype.CheckCollisions = function (enemies) {
+  for (var i = 0; i < enemies.length; i++) {
+    var enemy = enemies[i];
+    if(enemy.dying || !enemy.IsColliding(this)) continue;
+    return enemy;
   }
   return false;
 };
@@ -148,10 +145,13 @@ var Config = {
 	InitialHealth: 3,
 	DieScorePenalty: 100,
 	DieHealthPenalty: 1,
-	LabelDuration: 3000,
+	LabelDuration: 1000,
 	TextColor: "#D2312E",
 	TextFont: "2em Verdana",
-	EnemyDyingTime: 500
+	EnemyDyingTime: 500,
+	PrintBoundingBoxes: false,
+	EnemySpawnerTime: 1500,
+	GemSpawnerTime: 3000
 }
 
 var DIRECTION = {
@@ -185,12 +185,11 @@ Gem.prototype.GetRandomSprite = function() {
 }
 
 Gem.prototype.render = function() {
-	var x = (this.x + Config.ColSize / 2);
-	var y = (this.y + Config.RowSize );
+	if(Config.PrintBoundingBoxes) ctx.strokeRect(this.x, this.y, this.width, this.height);
 	this.PrintWithRotation(
 		Resources.get(this.sprite),
-		x,
-		y,
+		this.x,
+		this.y,
 		60,
 		60,
 		this.CurrentRotation);
@@ -211,7 +210,7 @@ Gem.prototype.IsActive = function() {
 };
 
 var Hub = {
-	 TopOffset: 80,
+	 TopOffset: 45,
 	 PrintScore: function(score) {
 		ctx.save();
 		ctx.fillStyle = Config.TextColor;
@@ -222,18 +221,20 @@ var Hub = {
 	},
 	PrintHealth: function(healthLevel) {
 		var healthSprite = Resources.get('images/Heart.png');
-		
+
 		var spriteWidth = 50;
 		var x = 5;
 		for (var i = 0; i < healthLevel; i++) {
-			ctx.drawImage(healthSprite, x, 40, 50, 85);
+			ctx.drawImage(healthSprite, x, 0, 50, 85);
 			x += spriteWidth;
 		}
 	}
 }
+
 function Element() {}
 Element.prototype.render = function() {
     if(this.width && this.height) {
+        if(Config.PrintBoundingBoxes) ctx.strokeRect(this.x, this.y, this.width, this.height);
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y, this.width, this.height);
     }else {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -272,12 +273,12 @@ Element.prototype.CanGoRight = function() {
 
 Element.prototype.CanGoUp = function() {
 	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Row > 1;
+	return currentSquare.Row > 0;
 }
 
 Element.prototype.CanGoDown = function() {
 	var currentSquare = this.GetCurrentSquare();
-	return currentSquare.Row < Config.NumRows;
+	return currentSquare.Row < Config.NumRows - 1;
 }
 
 Element.prototype.GetCenter = function () {
@@ -307,6 +308,7 @@ Element.prototype.GetCurrentSquare = function() {
 Element.prototype.PrintWithRotation = function(sprite, x, y, width, height, rotation) {
 	ctx.save();
 	ctx.translate(x, y);
+  ctx.translate(Config.ColSize / 2, Config.RowSize / 2);
 	ctx.rotate( rotation );
 	ctx.translate(-width/2, -height/2);
 	ctx.drawImage(sprite, 0, 0, width, height);
@@ -316,8 +318,8 @@ Element.prototype.PrintWithRotation = function(sprite, x, y, width, height, rota
 function Player(sprite){
 	if(typeof sprite !== "string") sprite = 'images/char-horn-girl.png';
     this.sprite = sprite;
-		this.width = 100;
-		this.height = 101;
+		this.width = 80;
+		this.height = 81;
     this.Score = 0;
     this.Health = Config.InitialHealth;
     this.TopLabel = {
@@ -334,7 +336,7 @@ Player.prototype.constructor = Player;
 
 Player.prototype.Spawn = function() {
 	var x = Math.floor(board.nCols / 2);
-	var y = board.nRows - 1;
+	var y = board.nRows;
 	var cellPosition = board.GetCellCenterPosition(x,y);
 	this.x = cellPosition.x;
 	this.y = cellPosition.y;
@@ -399,9 +401,9 @@ Player.prototype.Shoot = function () {
 	this.Bullets.push(new Bullet(this.LastDirection, this.GetCenter()))
 };
 
-Player.prototype.Collect = function(gem) {
-	this.Score += gem.Points;
-	this.TopLabel.Value += gem.Points;
+Player.prototype.AddScore = function(score) {
+	this.Score += score;
+	this.TopLabel.Value += score;
 	this.TopLabel.LastUpdate = new Date().getTime();
 };
 
@@ -420,10 +422,17 @@ Player.prototype.update = function (dt) {
 		if(!bullet.IsInsideScene()) this.Bullets.splice(i, 1);
 
 		bullet.update(dt);
-		if(bullet.CheckCollisions(allEnemies)) {
+		var enemyKilled = bullet.CheckCollisions(allEnemies);
+		if(enemyKilled) {
+				this._killEnemy(enemyKilled);
 				this.Bullets.splice(i, 1);
 		}
 	}
+};
+
+Player.prototype._killEnemy = function (enemy) {
+	enemy.Kill();
+	this.AddScore(enemy.Score);
 };
 
 Player.prototype.PrintLabel = function() {
@@ -570,6 +579,7 @@ function Enemy() {
     this.LastDirectionChangeTime = new Date().getTime();
     this.dying = false;
     this.dieTime = null;
+    this.Score = 25;
 };
 Enemy.prototype.sprite = 'images/enemy-bug.png'
 Enemy.prototype.width = 80;
@@ -590,7 +600,7 @@ Enemy.prototype.GetInitialPosition = function (initialDirection) {
       position.x = board.GetRandomColOffset();
       break;
     case DIRECTION.DOWN:
-      position.y = 0;
+      position.y = 50;
       position.x = board.GetRandomColOffset();
       break;
     case DIRECTION.LEFT:
@@ -644,7 +654,12 @@ Enemy.prototype.TryChangeDirection = function (dt) {
   if(this.Direction == DIRECTION.UP || this.Direction == DIRECTION.DOWN) {
     nextDirection = Math.random() > .5 ?  DIRECTION.RIGHT : DIRECTION.LEFT;
   }else {
-    nextDirection = Math.random() > .5 ? DIRECTION.UP : DIRECTION.DOWN;
+    if(!this.CanGoUp()) {
+      nextDirection = DIRECTION.DOWN;
+    }
+    else {
+      nextDirection = Math.random() > .5 ? DIRECTION.UP : DIRECTION.DOWN;
+    }
   }
 
   this.Direction = nextDirection;

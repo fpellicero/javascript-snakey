@@ -33,7 +33,7 @@ var Engine = (function(global) {
         var availableHeight = window.innerHeight - Config.Margin
 
         Config.NumCols = Math.floor(availableWidth / Config.ColSize);
-        Config.NumRows = Math.floor(availableHeight / Config.RowSize) - 1;
+        Config.NumRows = Math.floor(availableHeight / Config.RowSize);
 
         availableWidth = Config.NumCols * Config.ColSize;
         availableHeight = (Config.NumRows) * Config.RowSize + 90;

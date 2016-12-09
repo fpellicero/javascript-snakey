@@ -22,12 +22,11 @@ Gem.prototype.GetRandomSprite = function() {
 }
 
 Gem.prototype.render = function() {
-	var x = (this.x + Config.ColSize / 2);
-	var y = (this.y + Config.RowSize );
+	if(Config.PrintBoundingBoxes) ctx.strokeRect(this.x, this.y, this.width, this.height);
 	this.PrintWithRotation(
 		Resources.get(this.sprite),
-		x,
-		y,
+		this.x,
+		this.y,
 		60,
 		60,
 		this.CurrentRotation);
