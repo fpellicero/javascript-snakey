@@ -13,3 +13,4 @@ RedHorn.prototype.Sprites = [
     'images/mob/red-horn/frame-1.png',
     'images/mob/red-horn/frame-2.png'
 ];
+RedHorn.prototype.DamagedSprite = 'images/mob/red-horn/damaged.png';

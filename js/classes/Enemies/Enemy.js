@@ -9,6 +9,8 @@ function Enemy() {
     this.speed = this.GetRandomSpeed();
 
     this.LastDirectionChangeTime = new Date().getTime();
+    this.dying = false;
+    this.dieTime = null;
 };
 Enemy.prototype.sprite = 'images/enemy-bug.png'
 Enemy.prototype.width = 80;
@@ -94,5 +96,15 @@ Enemy.prototype.CheckPlayerCollision = function() {
         player.Die();
     }
 }
+
+Enemy.prototype.Kill = function () {
+  this.dying = true;
+  this.dieTime = new Date().getTime();
+};
+
+Enemy.prototype.IsDead = function () {
+  var now = new Date().getTime();
+  return this.dying && (now - this.dieTime) > Config.EnemyDyingTime;
+};
 
 var allEnemies = [];

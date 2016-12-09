@@ -3,7 +3,7 @@ function Bullet(direction, initialPosition) {
   this.y = initialPosition.y;
   this.width = 10;
   this.height = 10;
-  this.Speed = 600;1
+  this.Speed = 600;
   this.Direction = direction;
 }
 
@@ -32,8 +32,9 @@ Bullet.prototype.update = function (dt) {
 Bullet.prototype.CheckCollisions = function (itemsToCheck) {
   var self = this;
   for (var i = 0; i < itemsToCheck.length; i++) {
+    if(itemsToCheck[i].dying) continue;
     if(itemsToCheck[i].IsColliding(self)) {
-      itemsToCheck.splice(i, 1);
+      itemsToCheck[i].Kill();
       return true;
     }
   }

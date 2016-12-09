@@ -9,6 +9,7 @@ YellowFlam.prototype.width = 80;
 YellowFlam.prototype.height = 70;
 YellowFlam.prototype.frameDuration = 120;
 
+YellowFlam.prototype.DamagedSprite = 'images/mob/yellow-flam/damaged.png';
 YellowFlam.prototype.Sprites = [
     'images/mob/yellow-flam/1.png',
     'images/mob/yellow-flam/2.png',

@@ -12,7 +12,13 @@ AnimatedEnemy.prototype.IsAnimated = function () {
   return this.Sprites && this.Sprites.length > 1;
 };
 
+AnimatedEnemy.prototype.Kill = function () {
+  Object.getPrototypeOf(AnimatedEnemy.prototype).Kill.call(this);
+  this.sprite = this.DamagedSprite;
+};
+
 AnimatedEnemy.prototype.update = function (dt) {
+    if(this.dying) return;
     Object.getPrototypeOf(AnimatedEnemy.prototype).update.call(this, dt)
 
     if(!this.IsAnimated()) return;

@@ -96,7 +96,7 @@ function Bullet(direction, initialPosition) {
   this.y = initialPosition.y;
   this.width = 10;
   this.height = 10;
-  this.Speed = 600;1
+  this.Speed = 600;
   this.Direction = direction;
 }
 
@@ -125,8 +125,9 @@ Bullet.prototype.update = function (dt) {
 Bullet.prototype.CheckCollisions = function (itemsToCheck) {
   var self = this;
   for (var i = 0; i < itemsToCheck.length; i++) {
+    if(itemsToCheck[i].dying) continue;
     if(itemsToCheck[i].IsColliding(self)) {
-      itemsToCheck.splice(i, 1);
+      itemsToCheck[i].Kill();
       return true;
     }
   }
@@ -140,16 +141,17 @@ Bullet.prototype.render = function () {
 var Config = {
 	Margin: 0,
 	ColSize: 101,
-    RowSize: 83,
-    MinGemDuration: 10000,
-    MaxGemDuration: 20000,
-    DiePenalty: 100,
-    InitialHealth: 3,
-    DieScorePenalty: 100,
+	RowSize: 83,
+	MinGemDuration: 10000,
+	MaxGemDuration: 20000,
+	DiePenalty: 100,
+	InitialHealth: 3,
+	DieScorePenalty: 100,
 	DieHealthPenalty: 1,
 	LabelDuration: 3000,
-    TextColor: "#D2312E",
-    TextFont: "2em Verdana"
+	TextColor: "#D2312E",
+	TextFont: "2em Verdana",
+	EnemyDyingTime: 500
 }
 
 var DIRECTION = {
@@ -566,6 +568,8 @@ function Enemy() {
     this.speed = this.GetRandomSpeed();
 
     this.LastDirectionChangeTime = new Date().getTime();
+    this.dying = false;
+    this.dieTime = null;
 };
 Enemy.prototype.sprite = 'images/enemy-bug.png'
 Enemy.prototype.width = 80;
@@ -652,6 +656,16 @@ Enemy.prototype.CheckPlayerCollision = function() {
     }
 }
 
+Enemy.prototype.Kill = function () {
+  this.dying = true;
+  this.dieTime = new Date().getTime();
+};
+
+Enemy.prototype.IsDead = function () {
+  var now = new Date().getTime();
+  return this.dying && (now - this.dieTime) > Config.EnemyDyingTime;
+};
+
 var allEnemies = [];
 
 function AnimatedEnemy() {
@@ -668,7 +682,13 @@ AnimatedEnemy.prototype.IsAnimated = function () {
   return this.Sprites && this.Sprites.length > 1;
 };
 
+AnimatedEnemy.prototype.Kill = function () {
+  Object.getPrototypeOf(AnimatedEnemy.prototype).Kill.call(this);
+  this.sprite = this.DamagedSprite;
+};
+
 AnimatedEnemy.prototype.update = function (dt) {
+    if(this.dying) return;
     Object.getPrototypeOf(AnimatedEnemy.prototype).update.call(this, dt)
 
     if(!this.IsAnimated()) return;
@@ -698,6 +718,7 @@ RedHorn.prototype.Sprites = [
     'images/mob/red-horn/frame-1.png',
     'images/mob/red-horn/frame-2.png'
 ];
+RedHorn.prototype.DamagedSprite = 'images/mob/red-horn/damaged.png';
 
 function YellowFlam() {
     AnimatedEnemy.call(this);
@@ -710,6 +731,7 @@ YellowFlam.prototype.width = 80;
 YellowFlam.prototype.height = 70;
 YellowFlam.prototype.frameDuration = 120;
 
+YellowFlam.prototype.DamagedSprite = 'images/mob/yellow-flam/damaged.png';
 YellowFlam.prototype.Sprites = [
     'images/mob/yellow-flam/1.png',
     'images/mob/yellow-flam/2.png',

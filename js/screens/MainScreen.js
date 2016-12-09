@@ -54,13 +54,25 @@ MainScreen.prototype.Destroy = function() {
 
 
 MainScreen.prototype.update = function(dt) {
-	allEnemies.forEach(function(enemy) {
-      enemy.update(dt);
-  });
-  board.Gems.forEach(function(gem) {
+	this._updateEnemies(dt);
+	this._updateGems(dt);
+	player.update(dt);
+};
+
+MainScreen.prototype._updateEnemies = function (dt) {
+	for (var i = 0; i < allEnemies.length; i++) {
+		var enemy = allEnemies[i];
+		enemy.update(dt);
+		if(enemy.IsDead()) {
+			allEnemies.splice(i, 1);
+		}
+	}
+};
+
+MainScreen.prototype._updateGems = function (dt) {
+	board.Gems.forEach(function(gem) {
       gem.update(dt);
   });
-	player.update(dt);
 };
 
 MainScreen.prototype.render = function(first_argument) {
