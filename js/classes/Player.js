@@ -1,8 +1,11 @@
 function Player(sprite){
-	if(typeof sprite !== "string") sprite = 'images/char-horn-girl.png';
-    this.sprite = sprite;
+		this.originalSprite = sprite;
+		this.sprite = sprite;
+		this.lastSpriteChangeTime = null;
+
 		this.width = 80;
 		this.height = 81;
+
     this.Score = 0;
     this.Health = Config.InitialHealth;
     this.TopLabel = {
@@ -11,7 +14,13 @@ function Player(sprite){
     };
 		this.Bullets = [];
 		this.LastDirection = DIRECTION.UP;
+
+		/* Timestamps to control inmortality state*/
+		this.InmortalStartTime = null;
+		this.InmortalDuration = null;
 }
+
+
 
 Player.prototype = Object.create(Element.prototype);
 Player.prototype.constructor = Player;
@@ -23,6 +32,7 @@ Player.prototype.Spawn = function() {
 	var cellPosition = board.GetCellCenterPosition(x,y);
 	this.x = cellPosition.x;
 	this.y = cellPosition.y;
+	this.SetInmortal(2000);
 }
 
 Player.prototype.goLeft = function() {
@@ -74,8 +84,6 @@ Player.prototype.handleInput = function(key) {
 		case DIRECTION.DOWN:
 			this.goDown();
 			break;
-		default:
-			break;
 	}
 }
 
@@ -110,7 +118,18 @@ Player.prototype.render = function() {
 	this.PrintLabel();
 };
 
+Player.prototype._inmortalAnimation = function () {
+	if(!this.IsInmortal()) return;
+
+	var now = new Date().getTime();
+	if(!this.lastSpriteChangeTime || now - this.lastSpriteChangeTime > 100) {
+		this.lastSpriteChangeTime = now
+		this.sprite = (!this.sprite) ? this.originalSprite : null;
+	}
+};
+
 Player.prototype.update = function (dt) {
+	this._inmortalAnimation();
 
 	for (var i = 0; i < this.Bullets.length; i++) {
 		var bullet = this.Bullets[i]
@@ -145,6 +164,28 @@ Player.prototype.PrintLabel = function() {
     ctx.font = Config.TextFont;
     ctx.strokeText("+" + this.TopLabel.Value, center.x - 10, center.y - (this.height / 2));
     ctx.restore();
+};
+
+Player.prototype.SetInmortal = function (duration) {
+	this.InmortalStartTime = new Date().getTime();
+	this.InmortalDuration = duration;
+};
+
+Player.prototype.SetMortal = function () {
+	this.sprite = this.originalSprite;
+	this.InmortalDuration = null;
+	this.InmortalStartTime = null;
+};
+
+Player.prototype.IsInmortal = function () {
+	if(!this.InmortalDuration || !this.InmortalStartTime) return false;
+
+	var now = new Date().getTime();
+	if(now - this.InmortalStartTime > this.InmortalDuration) {
+		this.SetMortal();
+		return false;
+	}
+	return true;
 };
 
 var player = new Player();

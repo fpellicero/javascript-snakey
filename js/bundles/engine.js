@@ -25,12 +25,13 @@ GameOverScreen.prototype.PrintText = function() {
 function MainScreen() {
 	this.EnemySpawner = null;
 	this.GemSpawner = null;
+	this.LastMayhemCount = null;
+	this.LastMayhemTime = new Date().getTime();
 	this.Activate();
 }
 
 MainScreen.prototype = Object.create(Screen.prototype);
 MainScreen.prototype.constructor = MainScreen;
-
 
 MainScreen.prototype.Events = [
 	{
@@ -51,22 +52,31 @@ MainScreen.prototype.Events = [
 ]
 
 MainScreen.prototype.Activate = function() {
-	this.BindEvents();
-
-    this.EnemySpawner = setInterval(function() {
-				var newEnemy = Math.random() > .5 ? new RedHorn() : new YellowFlam();
-				allEnemies.push(newEnemy);
-    }, Config.EnemySpawnerTime)
-
-    this.GemSpawner = setInterval(function() {
-        var random = Math.random() * 100;
-        if(random > 85) {
-            board.Gems.push(new Gem());
-        }
-    }, Config.GemSpawnerTime);
-
+		this.BindEvents();
+		this.StartEnemySpawner(Config.EnemySpawnerTime);
+    this.StartGemSpawner(Config.GemSpawnerTime);
     player.Spawn();
 }
+
+MainScreen.prototype.StartGemSpawner = function (intervalTime) {
+	this.GemSpawner = setInterval(function() {
+			var random = Math.random() * 100;
+			if(random > 85) {
+					board.Gems.push(new Gem());
+			}
+	}, intervalTime);
+};
+
+MainScreen.prototype.StartEnemySpawner = function (intervalTime) {
+	var self = this;
+	this.EnemySpawner = setInterval(function() {
+			allEnemies.push(self._newEnemy());
+	}, intervalTime)
+};
+
+MainScreen.prototype._newEnemy = function () {
+	return Math.random() > .5 ? new RedHorn() : new YellowFlam();
+};
 
 MainScreen.prototype.Destroy = function() {
 	this.UnbindEvents();
@@ -77,9 +87,34 @@ MainScreen.prototype.Destroy = function() {
 
 
 MainScreen.prototype.update = function(dt) {
+	this._tryMayhem();
 	this._updateEnemies(dt);
 	this._updateGems(dt);
 	player.update(dt);
+};
+
+MainScreen.prototype._tryMayhem = function () {
+	if(player.Score < 250) return;
+
+	var now = new Date().getTime();
+	if(now - this.LastMayhemTime > Config.TimeBetweenMayhems) {
+		this._mayhem();
+		this.LastMayhemTime = now;
+		console.log("mayhem");
+	}
+};
+
+MainScreen.prototype._mayhem = function () {
+		var self = this;
+		self.LastMayhemCount = self.LastMayhemCount || 0;
+		self.LastMayhemCount += 5;
+		var count = 0;
+		var mayhemTimer = setInterval(function () {
+			allEnemies.push(self._newEnemy());
+			if(++count >= self.LastMayhemCount) {
+				clearInterval(mayhemTimer);
+			}
+		}, 500);
 };
 
 MainScreen.prototype._updateEnemies = function (dt) {
@@ -98,7 +133,7 @@ MainScreen.prototype._updateGems = function (dt) {
   });
 };
 
-MainScreen.prototype.render = function(first_argument) {
+MainScreen.prototype.render = function() {
         board.render();
 
         allEnemies.forEach(function(enemy) {

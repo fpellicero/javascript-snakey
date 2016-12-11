@@ -99,7 +99,7 @@ Enemy.prototype.TryChangeDirection = function (dt) {
   this.LastDirectionChangeTime = currentTime;
 };
 Enemy.prototype.CheckPlayerCollision = function() {
-    if(this.IsColliding(player)) {
+    if(!player.IsInmortal() && this.IsColliding(player)) {
         player.Die();
     }
 }

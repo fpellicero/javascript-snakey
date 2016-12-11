@@ -14,7 +14,8 @@ var Config = {
 	EnemyDyingTime: 500,
 	PrintBoundingBoxes: false,
 	EnemySpawnerTime: 1500,
-	GemSpawnerTime: 3000
+	GemSpawnerTime: 3000,
+	TimeBetweenMayhems: 15000
 }
 
 var DIRECTION = {

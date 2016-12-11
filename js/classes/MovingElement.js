@@ -1,5 +1,6 @@
 function Element() {}
 Element.prototype.render = function() {
+    if(!this.sprite) return;
     if(this.width && this.height) {
         if(Config.PrintBoundingBoxes) ctx.strokeRect(this.x, this.y, this.width, this.height);
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y, this.width, this.height);
