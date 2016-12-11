@@ -18,7 +18,7 @@ Player.prototype.constructor = Player;
 
 
 Player.prototype.Spawn = function() {
-	var x = Math.floor(board.nCols / 2);
+	var x = Math.ceil(board.nCols / 2);
 	var y = board.nRows;
 	var cellPosition = board.GetCellCenterPosition(x,y);
 	this.x = cellPosition.x;
@@ -26,23 +26,35 @@ Player.prototype.Spawn = function() {
 }
 
 Player.prototype.goLeft = function() {
-	if(!this.CanGoLeft()) return;
-	this.x -= Config.ColSize;
+	if(!this.CanGoLeft()) {
+		this.x = board.GetColOffset(board.nCols - 1);
+	}else {
+			this.x -= Config.ColSize;
+	}
 }
 
 Player.prototype.goRight = function() {
-	if(!this.CanGoRight()) return;
-	this.x += Config.ColSize;
+	if(!this.CanGoRight()) {
+		this.x = board.GetColOffset(0);
+	}else {
+			this.x += Config.ColSize;
+	}
 }
 
 Player.prototype.goDown = function() {
-	if(!this.CanGoDown()) return;
-	this.y += Config.RowSize;
+	if(!this.CanGoDown()) {
+		this.y = board.GetRowOffset(0);
+	}else {
+		this.y += Config.RowSize;
+	}
 }
 
 Player.prototype.goUp = function() {
-	if(!this.CanGoUp()) return;
-	this.y -= Config.RowSize;
+	if(!this.CanGoUp()) {
+		this.y = board.GetRowOffset(board.nRows - 1);
+	}else {
+			this.y -= Config.RowSize;
+	}
 }
 
 Player.prototype.handleInput = function(key) {

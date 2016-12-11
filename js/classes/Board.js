@@ -30,7 +30,7 @@ Board.prototype.GenerateBoard = function() {
 
 Board.prototype.GetCellCenterPosition = function(x, y) {
 	return {
-		x:  x * Config.ColSize,
+		x:  (x - 1) * Config.ColSize,
 		y:  (y - 1) * Config.RowSize
 	};
 };
@@ -66,6 +66,7 @@ Board.prototype.render = function(withGems) {
 	var self = this;
 	for (var row = 0; row < this.nRows; row++) {
 		for (var col = 0; col < this.nCols; col++) {
+			if(Config.PrintBoundingBoxes) ctx.strokeRect(self.GetColOffset(col), self.GetRowOffset(row), Config.ColSize, Config.RowSize);
 			ctx.drawImage(Resources.get(self.Sprites[row][col]), self.GetColOffset(col), self.GetRowOffset(row));
 		}
 	}

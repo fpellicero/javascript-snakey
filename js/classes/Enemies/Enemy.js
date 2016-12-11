@@ -79,8 +79,9 @@ Enemy.prototype.UpdatePosition = function (dt) {
 Enemy.prototype.TryChangeDirection = function (dt) {
   var currentTime = new Date().getTime();
   var timeSinceLastChange = currentTime - this.LastDirectionChangeTime;
-  if(timeSinceLastChange < 2500 ||  Math.random() < 0.97) return;
+  if(timeSinceLastChange < 2500) return;
 
+  if(!this.IsInsideCell()) return;
 
   var nextDirection;
   if(this.Direction == DIRECTION.UP || this.Direction == DIRECTION.DOWN) {

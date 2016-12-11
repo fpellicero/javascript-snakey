@@ -20,3 +20,6 @@ YellowFlam.prototype.Sprites = [
     'images/mob/yellow-flam/7.png',
     'images/mob/yellow-flam/8.png',
 ];
+
+Resources.load(YellowFlam.prototype.Sprites);
+Resources.load(YellowFlam.prototype.DamagedSprite);

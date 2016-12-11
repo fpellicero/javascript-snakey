@@ -12,6 +12,23 @@ Element.prototype.IsInsideScene = function () {
     return this.x > 0 && this.x < board.width && this.y > 0 && this.y < board.height;
 };
 
+Element.prototype.IsInsideCell = function () {
+    var boundingBox = this.GetBoundingBox();
+    var currentCell = this.GetCurrentSquare();
+
+    var cell = {
+      Left: board.GetColOffset(currentCell.Col),
+      Right: board.GetColOffset(currentCell.Col + 1),
+      Top: board.GetRowOffset(currentCell.Row),
+      Bottom: board.GetRowOffset(currentCell.Row + 1)
+    }
+
+    return (boundingBox.x >= cell.Left
+    && (boundingBox.x + boundingBox.width) <= cell.Right
+    && boundingBox.y >= cell.Top
+    && (boundingBox.y + boundingBox.height) <= cell.Bottom);
+};
+
 Element.prototype.IsColliding = function (anotherElement) {
     var boundingBoxA = this.GetBoundingBox();
     var boundingBoxB = anotherElement.GetBoundingBox();

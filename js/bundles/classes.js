@@ -30,7 +30,7 @@ Board.prototype.GenerateBoard = function() {
 
 Board.prototype.GetCellCenterPosition = function(x, y) {
 	return {
-		x:  x * Config.ColSize,
+		x:  (x - 1) * Config.ColSize,
 		y:  (y - 1) * Config.RowSize
 	};
 };
@@ -66,6 +66,7 @@ Board.prototype.render = function(withGems) {
 	var self = this;
 	for (var row = 0; row < this.nRows; row++) {
 		for (var col = 0; col < this.nCols; col++) {
+			if(Config.PrintBoundingBoxes) ctx.strokeRect(self.GetColOffset(col), self.GetRowOffset(row), Config.ColSize, Config.RowSize);
 			ctx.drawImage(Resources.get(self.Sprites[row][col]), self.GetColOffset(col), self.GetRowOffset(row));
 		}
 	}
@@ -96,7 +97,7 @@ function Bullet(direction, initialPosition) {
   this.y = initialPosition.y;
   this.width = 10;
   this.height = 10;
-  this.Speed = 600;
+  this.Speed = 800;
   this.Direction = direction;
 }
 
@@ -245,6 +246,23 @@ Element.prototype.IsInsideScene = function () {
     return this.x > 0 && this.x < board.width && this.y > 0 && this.y < board.height;
 };
 
+Element.prototype.IsInsideCell = function () {
+    var boundingBox = this.GetBoundingBox();
+    var currentCell = this.GetCurrentSquare();
+
+    var cell = {
+      Left: board.GetColOffset(currentCell.Col),
+      Right: board.GetColOffset(currentCell.Col + 1),
+      Top: board.GetRowOffset(currentCell.Row),
+      Bottom: board.GetRowOffset(currentCell.Row + 1)
+    }
+
+    return (boundingBox.x >= cell.Left
+    && (boundingBox.x + boundingBox.width) <= cell.Right
+    && boundingBox.y >= cell.Top
+    && (boundingBox.y + boundingBox.height) <= cell.Bottom);
+};
+
 Element.prototype.IsColliding = function (anotherElement) {
     var boundingBoxA = this.GetBoundingBox();
     var boundingBoxB = anotherElement.GetBoundingBox();
@@ -335,7 +353,7 @@ Player.prototype.constructor = Player;
 
 
 Player.prototype.Spawn = function() {
-	var x = Math.floor(board.nCols / 2);
+	var x = Math.ceil(board.nCols / 2);
 	var y = board.nRows;
 	var cellPosition = board.GetCellCenterPosition(x,y);
 	this.x = cellPosition.x;
@@ -343,23 +361,35 @@ Player.prototype.Spawn = function() {
 }
 
 Player.prototype.goLeft = function() {
-	if(!this.CanGoLeft()) return;
-	this.x -= Config.ColSize;
+	if(!this.CanGoLeft()) {
+		this.x = board.GetColOffset(board.nCols - 1);
+	}else {
+			this.x -= Config.ColSize;
+	}
 }
 
 Player.prototype.goRight = function() {
-	if(!this.CanGoRight()) return;
-	this.x += Config.ColSize;
+	if(!this.CanGoRight()) {
+		this.x = board.GetColOffset(0);
+	}else {
+			this.x += Config.ColSize;
+	}
 }
 
 Player.prototype.goDown = function() {
-	if(!this.CanGoDown()) return;
-	this.y += Config.RowSize;
+	if(!this.CanGoDown()) {
+		this.y = board.GetRowOffset(0);
+	}else {
+		this.y += Config.RowSize;
+	}
 }
 
 Player.prototype.goUp = function() {
-	if(!this.CanGoUp()) return;
-	this.y -= Config.RowSize;
+	if(!this.CanGoUp()) {
+		this.y = board.GetRowOffset(board.nRows - 1);
+	}else {
+			this.y -= Config.RowSize;
+	}
 }
 
 Player.prototype.handleInput = function(key) {
@@ -647,8 +677,9 @@ Enemy.prototype.UpdatePosition = function (dt) {
 Enemy.prototype.TryChangeDirection = function (dt) {
   var currentTime = new Date().getTime();
   var timeSinceLastChange = currentTime - this.LastDirectionChangeTime;
-  if(timeSinceLastChange < 2500 ||  Math.random() < 0.97) return;
+  if(timeSinceLastChange < 2500) return;
 
+  if(!this.IsInsideCell()) return;
 
   var nextDirection;
   if(this.Direction == DIRECTION.UP || this.Direction == DIRECTION.DOWN) {
@@ -730,10 +761,13 @@ RedHorn.prototype.height = 70;
 RedHorn.prototype.frameDuration = 300;
 
 RedHorn.prototype.Sprites = [
-    'images/mob/red-horn/frame-1.png',
-    'images/mob/red-horn/frame-2.png'
+    'images/mob/red-horn/1.png',
+    'images/mob/red-horn/2.png'
 ];
 RedHorn.prototype.DamagedSprite = 'images/mob/red-horn/damaged.png';
+
+Resources.load(RedHorn.prototype.Sprites);
+Resources.load(RedHorn.prototype.DamagedSprite);
 
 function YellowFlam() {
     AnimatedEnemy.call(this);
@@ -757,3 +791,6 @@ YellowFlam.prototype.Sprites = [
     'images/mob/yellow-flam/7.png',
     'images/mob/yellow-flam/8.png',
 ];
+
+Resources.load(YellowFlam.prototype.Sprites);
+Resources.load(YellowFlam.prototype.DamagedSprite);

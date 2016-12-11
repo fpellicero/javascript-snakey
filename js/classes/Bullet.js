@@ -3,7 +3,7 @@ function Bullet(direction, initialPosition) {
   this.y = initialPosition.y;
   this.width = 10;
   this.height = 10;
-  this.Speed = 600;
+  this.Speed = 800;
   this.Direction = direction;
 }
 

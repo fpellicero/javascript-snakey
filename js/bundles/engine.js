@@ -332,11 +332,6 @@ var Engine = (function(global) {
        'images/char-princess-girl.png',
        'images/Selector.png',
      ];
-     resourcesToLoad.push.apply(resourcesToLoad, RedHorn.prototype.Sprites);
-     resourcesToLoad.push.apply(resourcesToLoad, YellowFlam.prototype.Sprites);
-     resourcesToLoad.push(RedHorn.prototype.DamagedSprite);
-     resourcesToLoad.push(YellowFlam.prototype.DamagedSprite);
-
      Resources.load(resourcesToLoad);
      Resources.onReady(init);
 
