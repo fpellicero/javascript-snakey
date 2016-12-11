@@ -1,5 +1,5 @@
 function Enemy() {
-    var initialDirection = this.GetInitialDirection();
+    var initialDirection = (IsMobile.Any()) ? DIRECTION.DOWN : this.GetInitialDirection();
     var initialPosition = this.GetInitialPosition(initialDirection);
     this.Direction = initialDirection;
     this.x = initialPosition.x;
@@ -58,7 +58,7 @@ Enemy.prototype.update = function(dt) {
 };
 
 Enemy.prototype.UpdatePosition = function (dt) {
-  this.TryChangeDirection(dt);
+  if(!IsMobile.Any())this.TryChangeDirection(dt);
 
   switch (this.Direction) {
     case DIRECTION.UP:

@@ -44,6 +44,18 @@ var Engine = (function(global) {
 
         global.board = new Board(availableWidth, availableHeight, Config.NumRows, Config.NumCols)
         doc.body.appendChild(canvas);
+        if(IsMobile.Any()) {
+
+          if (canvas.requestFullscreen) {
+          	canvas.requestFullscreen();
+          } else if (canvas.webkitRequestFullscreen) {
+          	canvas.webkitRequestFullscreen();
+          } else if (canvas.mozRequestFullScreen) {
+          	canvas.mozRequestFullScreen();
+          } else if (canvas.msRequestFullscreen) {
+          	canvas.msRequestFullscreen();
+          }
+        }
     })();
 
 
@@ -115,3 +127,7 @@ var Engine = (function(global) {
      global.ctx = ctx;
      Reset();
  })(this);
+
+function IsMobile() {
+
+}

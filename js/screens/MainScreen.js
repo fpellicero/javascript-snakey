@@ -9,6 +9,8 @@ function MainScreen() {
 MainScreen.prototype = Object.create(Screen.prototype);
 MainScreen.prototype.constructor = MainScreen;
 
+var TouchStart = null;
+var TouchEnd = null;
 MainScreen.prototype.Events = [
 	{
 		element: document,
@@ -23,6 +25,13 @@ MainScreen.prototype.Events = [
 			};
 
 			player.handleInput(allowedKeys[e.keyCode]);
+		}
+	},
+	{
+		element: document,
+		event: "touchinput",
+		handler: function(e) {
+			player.handleTouchInput(e.detail);
 		}
 	}
 ]

@@ -33,6 +33,8 @@ function MainScreen() {
 MainScreen.prototype = Object.create(Screen.prototype);
 MainScreen.prototype.constructor = MainScreen;
 
+var TouchStart = null;
+var TouchEnd = null;
 MainScreen.prototype.Events = [
 	{
 		element: document,
@@ -47,6 +49,13 @@ MainScreen.prototype.Events = [
 			};
 
 			player.handleInput(allowedKeys[e.keyCode]);
+		}
+	},
+	{
+		element: document,
+		event: "touchinput",
+		handler: function(e) {
+			player.handleTouchInput(e.detail);
 		}
 	}
 ]
@@ -165,6 +174,7 @@ PlayerSelectionScreen.prototype.AvailableChars =
 	'images/char-princess-girl.png'
 ];
 
+
 PlayerSelectionScreen.prototype.GenerateEvents = function() {
 	var self = this;
 	var events = [];
@@ -179,6 +189,13 @@ PlayerSelectionScreen.prototype.GenerateEvents = function() {
 			};
 
 			self.handleInput(allowedKeys[e.keyCode]);
+		}
+	});
+	events.push({
+		element: document,
+		event: "touchinput",
+		handler: function(e) {
+			self.handleTouchInput(e.detail);
 		}
 	});
 	return events;
@@ -196,6 +213,20 @@ PlayerSelectionScreen.prototype.handleInput = function(key) {
 			this.SelectCharAndInitGame();
 			default:
 		break;
+	}
+};
+
+PlayerSelectionScreen.prototype.handleTouchInput = function (gesture) {
+	switch (gesture) {
+		case touchManager.GESTURES.SWIPE.LEFT:
+			this.handleInput("left");
+			break;
+		case touchManager.GESTURES.SWIPE.RIGHT:
+			this.handleInput("right");
+			break;
+		case touchManager.GESTURES.TAP:
+			this.handleInput("enter");
+			break;
 	}
 };
 
@@ -306,6 +337,18 @@ var Engine = (function(global) {
 
         global.board = new Board(availableWidth, availableHeight, Config.NumRows, Config.NumCols)
         doc.body.appendChild(canvas);
+        if(IsMobile.Any()) {
+
+          if (canvas.requestFullscreen) {
+          	canvas.requestFullscreen();
+          } else if (canvas.webkitRequestFullscreen) {
+          	canvas.webkitRequestFullscreen();
+          } else if (canvas.mozRequestFullScreen) {
+          	canvas.mozRequestFullScreen();
+          } else if (canvas.msRequestFullscreen) {
+          	canvas.msRequestFullscreen();
+          }
+        }
     })();
 
 
@@ -377,3 +420,7 @@ var Engine = (function(global) {
      global.ctx = ctx;
      Reset();
  })(this);
+
+function IsMobile() {
+
+}

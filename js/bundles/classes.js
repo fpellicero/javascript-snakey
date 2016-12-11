@@ -407,7 +407,7 @@ Player.prototype.goUp = function() {
 Player.prototype.handleInput = function(key) {
 	if(key == "spacebar") return this.Shoot();
 
-	this.LastDirection = key;
+	if(!IsMobile.Any()) this.LastDirection = key;
 	switch(key) {
 		case DIRECTION.LEFT:
 			this.goLeft();
@@ -423,6 +423,44 @@ Player.prototype.handleInput = function(key) {
 			break;
 	}
 }
+
+Player.prototype.handleTouchInput = function (gesture) {
+		switch (gesture) {
+			case touchManager.GESTURES.SWIPE.LEFT:
+				this.handleInput(DIRECTION.LEFT);
+				break;
+			case touchManager.GESTURES.SWIPE.RIGHT:
+				this.handleInput(DIRECTION.RIGHT);
+				break;
+			case touchManager.GESTURES.SWIPE.UP:
+				this.handleInput(DIRECTION.UP);
+				break;
+			case touchManager.GESTURES.SWIPE.DOWN:
+				this.handleInput(DIRECTION.DOWN);
+				break;
+			case touchManager.GESTURES.TAP:
+				this.handleInput("spacebar");
+				break;
+		}
+};
+
+Player.prototype._getInput = function (touchStart, touchEnd) {
+	if (touchEnd.x < touchStart.x) {
+			return DIRECTION.LEFT;
+	}
+	if (touchEnd.x > touchStart.x) {
+			return DIRECTION.RIGHT;
+	}
+	if (touchEnd.y < touchStart.y) {
+			return DIRECTION.DOWN;
+	}
+	if (touchEnd.y > touchStart.y) {
+			return DIRECTION.UP;
+	}
+	if (touchEnd.y == touchStart.y) {
+			return "tap"
+	}
+};
 
 Player.prototype.Die = function() {
 	this.Score -= Config.DieScorePenalty;
@@ -639,8 +677,110 @@ var player = new Player();
     };
 })();
 
+var TouchManager = function() {
+  this.TouchStart = null;
+  this.TouchEnd = null;
+  this._initListeners();
+}
+
+TouchManager.prototype.GESTURES = {
+  SWIPE: {
+    LEFT: "swipe.left",
+    RIGHT: "swipe.right",
+    UP: "swipe.up",
+    DOWN: "swipe.down"
+  },
+  TAP: "tap"
+}
+
+TouchManager.prototype.EVENTS = {
+  SWIPE: {
+    LEFT: new CustomEvent("touchinput",
+      {"detail" : TouchManager.prototype.GESTURES.SWIPE.LEFT}),
+    RIGHT: new CustomEvent("touchinput",
+      {"detail" : TouchManager.prototype.GESTURES.SWIPE.RIGHT}),
+    UP: new CustomEvent("touchinput",
+      {"detail" : TouchManager.prototype.GESTURES.SWIPE.UP}),
+    DOWN: new CustomEvent("touchinput",
+      {"detail" : TouchManager.prototype.GESTURES.SWIPE.DOWN})
+  },
+  TAP: new CustomEvent("touchinput",
+    {"detail" : TouchManager.prototype.GESTURES.TAP})
+}
+
+TouchManager.prototype._initListeners = function () {
+  var self = this;
+  document.addEventListener("touchstart", function(e) {
+    self.TouchStart = {
+      x: event.changedTouches[0].screenX,
+      y: event.changedTouches[0].screenY
+    };
+  });
+  document.addEventListener("touchend", function(e) {
+    self.TouchEnd = {
+      x: event.changedTouches[0].screenX,
+      y: event.changedTouches[0].screenY
+    };
+    self._fireGestureEvent();
+  })
+};
+
+TouchManager.prototype._fireGestureEvent = function () {
+  if (this.TouchEnd.y == this.TouchStart.y) {
+    document.dispatchEvent(this.EVENTS.TAP);
+    return;
+  }
+
+  var desp = {
+    Left: this.TouchStart.x - this.TouchEnd.x,
+    Right: this.TouchEnd.x - this.TouchStart.x,
+    Up: this.TouchStart.y - this.TouchEnd.y,
+    Down: this.TouchEnd.y - this.TouchStart.y
+  };
+
+  if(desp.Left > desp.Up && desp.Left > desp.Right && desp.Left > desp.Down) {
+    document.dispatchEvent(this.EVENTS.SWIPE.LEFT);
+    return;
+  }
+  if (desp.Right > desp.Left && desp.Right > desp.Up && desp.Right > desp.Down) {
+    document.dispatchEvent(this.EVENTS.SWIPE.RIGHT);
+    return;
+  }
+  if (desp.Up > desp.Down && desp.Up > desp.Left && desp.Up > desp.Right) {
+    document.dispatchEvent(this.EVENTS.SWIPE.UP);
+    return;
+  }
+  if (desp.Down > desp.Left && desp.Down > desp.Up && desp.Down > desp.Right) {
+    document.dispatchEvent(this.EVENTS.SWIPE.DOWN);
+    return;
+  }
+
+};
+var touchManager = new TouchManager();
+
+var IsMobile = {
+    Android: function() {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function() {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function() {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera: function() {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function() {
+        return navigator.userAgent.match(/IEMobile/i);
+    },
+    Any: function() {
+        return (IsMobile.Android() || IsMobile.BlackBerry() || IsMobile.iOS() || IsMobile.Opera() || IsMobile.Windows());
+    }
+};
+
 function Enemy() {
-    var initialDirection = this.GetInitialDirection();
+    var initialDirection = (IsMobile.Any()) ? DIRECTION.DOWN : this.GetInitialDirection();
     var initialPosition = this.GetInitialPosition(initialDirection);
     this.Direction = initialDirection;
     this.x = initialPosition.x;
@@ -699,7 +839,7 @@ Enemy.prototype.update = function(dt) {
 };
 
 Enemy.prototype.UpdatePosition = function (dt) {
-  this.TryChangeDirection(dt);
+  if(!IsMobile.Any())this.TryChangeDirection(dt);
 
   switch (this.Direction) {
     case DIRECTION.UP:

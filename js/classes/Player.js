@@ -70,7 +70,7 @@ Player.prototype.goUp = function() {
 Player.prototype.handleInput = function(key) {
 	if(key == "spacebar") return this.Shoot();
 
-	this.LastDirection = key;
+	if(!IsMobile.Any()) this.LastDirection = key;
 	switch(key) {
 		case DIRECTION.LEFT:
 			this.goLeft();
@@ -86,6 +86,44 @@ Player.prototype.handleInput = function(key) {
 			break;
 	}
 }
+
+Player.prototype.handleTouchInput = function (gesture) {
+		switch (gesture) {
+			case touchManager.GESTURES.SWIPE.LEFT:
+				this.handleInput(DIRECTION.LEFT);
+				break;
+			case touchManager.GESTURES.SWIPE.RIGHT:
+				this.handleInput(DIRECTION.RIGHT);
+				break;
+			case touchManager.GESTURES.SWIPE.UP:
+				this.handleInput(DIRECTION.UP);
+				break;
+			case touchManager.GESTURES.SWIPE.DOWN:
+				this.handleInput(DIRECTION.DOWN);
+				break;
+			case touchManager.GESTURES.TAP:
+				this.handleInput("spacebar");
+				break;
+		}
+};
+
+Player.prototype._getInput = function (touchStart, touchEnd) {
+	if (touchEnd.x < touchStart.x) {
+			return DIRECTION.LEFT;
+	}
+	if (touchEnd.x > touchStart.x) {
+			return DIRECTION.RIGHT;
+	}
+	if (touchEnd.y < touchStart.y) {
+			return DIRECTION.DOWN;
+	}
+	if (touchEnd.y > touchStart.y) {
+			return DIRECTION.UP;
+	}
+	if (touchEnd.y == touchStart.y) {
+			return "tap"
+	}
+};
 
 Player.prototype.Die = function() {
 	this.Score -= Config.DieScorePenalty;

@@ -17,6 +17,7 @@ PlayerSelectionScreen.prototype.AvailableChars =
 	'images/char-princess-girl.png'
 ];
 
+
 PlayerSelectionScreen.prototype.GenerateEvents = function() {
 	var self = this;
 	var events = [];
@@ -31,6 +32,13 @@ PlayerSelectionScreen.prototype.GenerateEvents = function() {
 			};
 
 			self.handleInput(allowedKeys[e.keyCode]);
+		}
+	});
+	events.push({
+		element: document,
+		event: "touchinput",
+		handler: function(e) {
+			self.handleTouchInput(e.detail);
 		}
 	});
 	return events;
@@ -48,6 +56,20 @@ PlayerSelectionScreen.prototype.handleInput = function(key) {
 			this.SelectCharAndInitGame();
 			default:
 		break;
+	}
+};
+
+PlayerSelectionScreen.prototype.handleTouchInput = function (gesture) {
+	switch (gesture) {
+		case touchManager.GESTURES.SWIPE.LEFT:
+			this.handleInput("left");
+			break;
+		case touchManager.GESTURES.SWIPE.RIGHT:
+			this.handleInput("right");
+			break;
+		case touchManager.GESTURES.TAP:
+			this.handleInput("enter");
+			break;
 	}
 };
 
