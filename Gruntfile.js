@@ -1,23 +1,24 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    clean: ["dist"],
     concat: {
       classes: {
         src:
-        [
-          'js/classes/*.js',
-          'js/classes/Enemies/Enemy.js',
-          'js/classes/Enemies/AnimatedEnemy.js',
-          'js/classes/Enemies/RedHorn.js',
-          'js/classes/Enemies/YellowFlam.js'
-        ],
-        dest: 'js/bundles/classes.js',
+          [
+            'js/classes/*.js',
+            'js/classes/Enemies/Enemy.js',
+            'js/classes/Enemies/AnimatedEnemy.js',
+            'js/classes/Enemies/RedHorn.js',
+            'js/classes/Enemies/YellowFlam.js'
+          ],
+        dest: 'dist/classes.js',
       },
       engine: {
         src: ['js/screens/*.js', 'js/engine.js'],
-        dest: 'js/bundles/engine.js',
+        dest: 'dist/engine.js',
       }
 
     },
@@ -27,14 +28,19 @@ module.exports = function(grunt) {
           sourceMap: true,
         },
         files: {
-          'js/bundles/script.min.js' : ['js/bundles/classes.js', 'js/bundles/engine.js']
+          'dist/script.min.js': ['dist/classes.js', 'dist/engine.js']
         }
       }
     },
+    copy: [
+      { src: "index.html", dest: "dist/index.html" },
+      { src: "css/**", dest: "dist/", expand: true },
+      { src: "images/**", dest: "dist/", expand: true },
+    ],
     watch: {
       scripts: {
         files: ['js/*/*.js', 'js/*.js', 'js/*/*/*.js'],
-        tasks: ['concat', 'uglify'],
+        tasks: ['clean', 'concat', 'uglify', 'copy'],
         options: {
           spawn: false,
         },
@@ -44,10 +50,12 @@ module.exports = function(grunt) {
 
   // Load the plugin that provides the "uglify" task.
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks("grunt-contrib-uglify")
+  grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 
   // Default task(s).
-  grunt.registerTask('default', ['watch']);
+  grunt.registerTask('default', ['clean', 'concat', 'uglify', 'copy']);
 
 };
